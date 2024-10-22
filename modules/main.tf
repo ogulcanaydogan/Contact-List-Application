@@ -122,8 +122,8 @@ resource "aws_db_instance" "db-server" {
   db_name = "contactlist"
   engine = "mysql"
   engine_version = "8.0.28"
-  username = "techpro"
-  password = "techpro123"
+  username = "ogulcan" //
+  password = "ogulcan123" //
   monitoring_interval = 0
   multi_az = false
   port = 3306
