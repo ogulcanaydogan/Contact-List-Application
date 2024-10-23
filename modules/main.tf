@@ -121,9 +121,10 @@ resource "aws_db_instance" "db-server" {
   identifier = "contactlist-app-db"
   db_name = "contactlist"
   engine = "mysql"
-  engine_version = "8.0.28"
-  username = "ogulcan" //
-  password = "ogulcan123" //
+  engine_version = "8.0.39" // "aws rds describe-db-engine-versions --engine mysql --query "DBEngineVersions[].EngineVersion"
+                            // check for available MySQL versions
+  username = "ogulcan"      //
+  password = "ogulcan123"   //
   monitoring_interval = 0
   multi_az = false
   port = 3306
