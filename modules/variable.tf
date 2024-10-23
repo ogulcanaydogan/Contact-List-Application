@@ -6,12 +6,12 @@ variable "key-name" {
 
 variable "hosted-zone" {
     type = string
-    default = "techpro.com"
+    default = "ogulcanaydogan.com"
   
 }
 
 variable "git-user" {
     type = string
-    default = "techpro"
+    default = "ogulcanaydogan"
   
 }
