@@ -111,7 +111,7 @@ resource "aws_db_subnet_group" "default" {
 }
 
 resource "aws_db_instance" "db-server" {
-  instance_class = "db.t2.micro"
+  instance_class = "db.t3.micro"
   allocated_storage = 20
   vpc_security_group_ids = [aws_security_group.db-sg.id]
   allow_major_version_upgrade = false
@@ -121,8 +121,10 @@ resource "aws_db_instance" "db-server" {
   identifier = "contactlist-app-db"
   db_name = "contactlist"
   engine = "mysql"
-  engine_version = "8.0.39" // "aws rds describe-db-engine-versions --engine mysql --query "DBEngineVersions[].EngineVersion"
+  engine_version = "8.0.39" // aws rds describe-db-engine-versions --engine mysql --query "DBEngineVersions[].EngineVersion"
                             // check for available MySQL versions
+                            // aws rds describe-orderable-db-instance-options --engine mysql --engine-version 8.0.39
+
   username = "ogulcan"      //
   password = "ogulcan123"   //
   monitoring_interval = 0
