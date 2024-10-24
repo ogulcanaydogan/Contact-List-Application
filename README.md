@@ -23,9 +23,15 @@ This Contact List Application is a simple web-based tool that allows users to ma
   - REST API *(if applicable)*
 
 - **Database**:
-  - MongoDB / Firebase / Local Storage *(or any other database you're using)*
+  - MySQL hosted on AWS RDS
+
+- **Deployment**:
+  - AWS EC2 for application hosting
+  - Terraform for infrastructure as code (IaC) to automate AWS resource provisioning
 
 ## Setup and Installation
+
+### Local Setup
 
 1. Clone the repository:
     \`\`\`bash
@@ -48,6 +54,42 @@ This Contact List Application is a simple web-based tool that allows users to ma
     \`\`\`
 
 5. Open your browser and navigate to \`http://localhost:3000\` to start using the Contact List Application.
+
+### Running on AWS using Terraform
+
+The application is designed to be deployed on AWS using Terraform to provision the required infrastructure. Here’s an overview of the AWS services used and how Terraform manages them:
+
+- **EC2**: Hosts the Flask web application.
+- **RDS**: Manages the MySQL database for storing contact information.
+- **Security Groups**: Ensure secure access to EC2 instances and RDS databases.
+- **VPC**: Provides network isolation for the application.
+
+#### Steps to Deploy on AWS:
+
+1. **Install Terraform**:
+   Ensure Terraform is installed on your local machine. You can follow the official [Terraform installation guide](https://learn.hashicorp.com/tutorials/terraform/install-cli).
+
+2. **AWS Configuration**:
+   Set up your AWS credentials by running:
+   \`\`\`bash
+   aws configure
+   \`\`\`
+
+3. **Initialize Terraform**:
+   Navigate to the directory containing the Terraform files and initialize Terraform:
+   \`\`\`bash
+   terraform init
+   \`\`\`
+
+4. **Apply Terraform Configuration**:
+   Run the following command to provision the AWS infrastructure and deploy the application:
+   \`\`\`bash
+   terraform apply
+   \`\`\`
+   Confirm the actions when prompted.
+
+5. **Access the Application**:
+   Once Terraform finishes deploying, you can access the application using the public IP or DNS of the provisioned EC2 instance.
 
 ## Usage
 
