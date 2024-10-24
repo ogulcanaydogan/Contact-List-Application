@@ -111,7 +111,7 @@ resource "aws_db_subnet_group" "default" {
 }
 
 resource "aws_db_instance" "db-server" {
-  instance_class = "db.t3.micro"
+  instance_class = "db.t3.micro"  //t2.micro doesn't work
   allocated_storage = 20
   vpc_security_group_ids = [aws_security_group.db-sg.id]
   allow_major_version_upgrade = false
