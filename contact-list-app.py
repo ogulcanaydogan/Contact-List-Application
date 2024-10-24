@@ -10,8 +10,8 @@ db_endpoint = open("/home/ec2-user/Contact-List-Application/dbserver.endpoint", 
 # Configure mysql database
 
 app.config['MYSQL_DATABASE_HOST'] = db_endpoint.readline().strip()
-app.config['MYSQL_DATABASE_USER'] = 'techpro'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'techpro123'
+app.config['MYSQL_DATABASE_USER'] = 'ogulcan'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'ogulcan123'
 app.config['MYSQL_DATABASE_DB'] = 'contactlist'
 app.config['MYSQL_DATABASE_PORT'] = 3306
 db_endpoint.close()
