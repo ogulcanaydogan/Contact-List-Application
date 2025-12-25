@@ -1,197 +1,88 @@
+# Contact List Microservice Platform (Kubernetes)
 
-# Project: Microservice Architecture for Phonebook Web Application (Python Flask) with MySQL using Kubernetes.
+Production-like microservice architecture deployed on Kubernetes to demonstrate containerized services, persistent storage, and secure configuration patterns (ConfigMaps + Secrets). The app is a simple phonebook system split into frontend (search) and backend (CRUD) services backed by MySQL.
 
-## Description
+## Key Highlights
+- Kubernetes Deployments and Services (NodePort, ClusterIP)
+- Persistent MySQL storage with PV/PVC
+- ConfigMaps and Secrets for configuration separation and credential management
+- Stateless services designed for horizontal scaling
+- Deployable on AWS EC2-based Kubernetes clusters (master/worker)
 
-Phonebook Microservice Web Application aims to create a web application with MySQL Database using Docker and Kubernetes to gives the understanding of Microservice architecture. In this application, we have a frontend service and a backend service to interact with database service. Each service will be managed by a Kubernetes deployment. The backend service will be a gateway for the application and it will serve the necessary web pages for create, delete and update operations while the frontend service will serve a search page in order to conduct read operations. To preserve the data in the database, persistent volume and persistent volume claim concepts should be adopted.
+## Architecture
+- Frontend Service (read-only search) -> NodePort `30002`
+- Backend Service (CRUD operations) -> NodePort `30001`
+- MySQL Database (persistent) -> ClusterIP `3306`
 
-## Problem Statement
+![Kubernetes-Project](Microservice_structure.png)
 
-![Kubernetes-Project](Microservice_structure.png) 
+## Services and API Endpoints
 
-- Your team has started working on a project to create a `Phonebook` Application as Web Service.  
-
-- Software Developers in your team have already developed first version of `Phonebook` application. They have designed a database to keep phonebook records with following fields.
-
-  - id: unique identifier for records, data type is integer and it will be auto increment.
-
-  - name: name of record, data type is string.
-
-  - number: phone number belonging to the recorded person.
-
-- Your teammates also created the RESTful web service as given in [Phonebook API](./Phonebook-api.py) using Python Flask Framework. Below table shows how the HTTP methods are designed to affect the given resources identified by URIs.
-
-| HTTP Method  | Action | Example|
+| HTTP Method | Action | Example |
 | --- | --- | --- |
-| `GET`     |   Read the records | http://[ec2-hostname]:30001/  |
-| `POST`    |   Create a new record | http://[ec2-hostname]:30001/add  |
-| `POST`    |   Update an existing record | http://[ec2-hostname]:30001/update  |
-| `POST`    |   Delete an existing record | http://[ec2-hostname]:30001/delete  |
-| `POST`    |   Delete a resource | http://[ec2-hostname]:30002  |
+| `GET`  | Read records | `http://[ec2-hostname]:30001/` |
+| `POST` | Create a record | `http://[ec2-hostname]:30001/add` |
+| `POST` | Update a record | `http://[ec2-hostname]:30001/update` |
+| `POST` | Delete a record | `http://[ec2-hostname]:30001/delete` |
+| `POST` | Search records | `http://[ec2-hostname]:30002/` |
 
-- As a cloud engineer, you're requested to deploy the app on an AWS EC2 Instance using Docker and Kubernetes to showcase your project. In order to achieve this goal, you need to;
+## What This Project Demonstrates
+This repository focuses on the infrastructure and deployment side of a small microservice platform:
 
-  - Pull the application code from GitHub repo of your team.
+- Building separate Docker images for frontend and backend Flask services
+- Running the system on Kubernetes with independent Deployments and Services
+- Persisting MySQL data using PV/PVC
+- Managing configuration with ConfigMaps and sensitive values with Secrets
+- Exposing workloads externally with NodePort for a simple EC2-based Kubernetes setup
 
-  - Create two docker images for create/update/delete and search pages using `Dockerfile`s.
+## Kubernetes Objects Overview
 
-  - Deploy the app using `Kubernetes`. To do so;
+### Backend Deployment and Service (CRUD)
+- Deployment runs one or more replicas
+- Container port exposed on `80`
+- DB connectivity configured via environment variables
+- DB credentials stored in Kubernetes Secrets
+- DB host and non-sensitive config stored in ConfigMaps
+- Service type: `NodePort` on `30001`, targets port `80`
 
-    - Create a database service using MySQL.
+### Frontend Deployment and Service (Search)
+- Deployment runs one or more replicas
+- Container port exposed on `80`
+- DB connectivity configured via environment variables
+- DB credentials stored in Kubernetes Secrets
+- DB host and non-sensitive config stored in ConfigMaps
+- Service type: `NodePort` on `30002`, targets port `80`
 
-    - Use a custom network for the services.
+### MySQL Deployment and Service (Persistent)
+- Image: `mysql:5.7`
+- Container port exposed on `3306`
+- Persistent volume attached via PVC
+- DB credentials stored in Kubernetes Secrets
+- Service type: `ClusterIP`, exposes `3306`
 
-- In the Kubernetes environment, you will configure three deployements with their services and a persistent volume for MySQL deployments. You can find the definitions below for the objects you should create:
+### Persistent Volume and Claim
+- Capacity: `20Gi`
+- Access mode: `ReadWriteOnce`
+- Host path: `/mnt/data`
+- PVC defined to bind the volume
 
-  1.1. CREATE/DELETE/UPDATE DEPLOYMENT
+## Infrastructure Assumptions (EC2-based Kubernetes)
+- 2 EC2 instances: 1 master, 1 worker
+- Recommended minimum instance type: `t2.medium`
+- Application accessible via browser from the public internet (via NodePort + Security Groups)
+- Repository can be pulled and deployed using automation (for example, user data in a CloudFormation template)
 
-    - Deployment definition file should configure create/delete/update operations with one or more replicas.
-    - Expose the container port on `port 80`.
-    - Deployment definition file should set the proper Environmental Variables for the db connection.
-    - Passwords should be protected by kubernetes-secrets.
-    - Database Host's value should be defined in the deployment using Kubernetes-ConfigMap.
-
-  1.2. CREATE/DELETE/UPDATE SERVICE
-    - This service should be attached to `CREATE/DELETE/UPDATE Deployment`.
-    - Service type should be NodePort published on `port:30001`.
-    - Expose the port and target port on port `80`.
-
-  2.1. SEARCH DEPLOYMENT
-
-    - Deployment definition file should configure search operations with one or more replicas.
-    - Expose the container port on `port 80`.
-    - Deployment definition file should set the proper Environmental Variables for the db connection.
-    - Passwords should be protected by kubernetes-secrets.
-    - Database Host's value should be defined in the deployment using Kubernetes-ConfigMap.
-
-  2.2. SEARCH SERVICE
-    - This service should be attached to `SEARCH Deployment`.
-    - Service type should be NodePort published on `port:30002`.
-    - Expose the port and target port on port `80`.
-
-  3.1. DATABASE DEPLOYMENT
-    - Deployment should use `mysql:5.7` image pulled from Docker hub.
-    - Expose the container port on `port 3306`.
-    - Deployment definition file should set the proper Environmental Variables.
-    - Persistent volume should be attached to this deployment.
-    - Passwords should be protected by kubernetes-secrets.
-
-  3.2. DATABASE SERVICE
-    - This service should be attached to `DATABASE Deployment`.
-    - Service type should be ClusterIP.
-    - Expose the port and target port on port `3306`.
-
-  3.3. Persistent Volume
-    - Volume capacity should be set as `20Gi`.
-    - Access Mode should be set as `ReadWriteOnce`.
-    - Host path should be set as `/mnt/data`.
-    - To be able to attache this volume, a persistent volume claim should be defined.
-  
-  4.1. Kubernetes Environment
-  - Assign two EC2 machines as the project's infrastructure. One should be configured as the master and the other should be configured as the worker. 
-
-  - Minimum `t2.medium` instance type should be selected.
-
-  - The Web Application should be accessible via web browser from anywhere. 
-
-  - The Application files should be downloaded from Github repo and deployed on EC2 Instance using user data script within cloudformation template.
-
-
-## Project Skeleton
+## Project Structure
 
 ```text
-Kubernetes-Microservice-Phonebook (folder)
-
-Initial files:
-
-1. README.md                      
-2. Image_for_web_server           
-  - app.py      
-  - requirements.txt              
-  - templates
-    - index.html
-    - add-update.html
-    - delete.html
-3. image_for_result_server      (Image components of Python Flask Web API for search record)
-  - app.py           
-  - requirements.txt              
-  - templates
-    - index.html
-
-Requested files:
-
-ADD/DELETE/UPDATE DEPLOYMENT AND SERVICE
-1. Dockerfile                     
-2. web_server_deployment.yml      
-3. web_server_service.yaml        
-
-SEARCH DEPLOYMENT AND SERVICE
-1. Dockerfile                     
-2. result_server_deployment.yml   
-3. result_server_service.yaml     
-
-DATABASE DEPLOYMENT AND SERVICE
-1. mysql_deployement.yml          
-2. mysql_service.yaml             
-3. persistent_volume.yaml         
-4. persistent_volume_claim.yaml   
-
-SECRETS AND CONFIGMAP
-1. mysql-secret.yaml              
-2. database_configmap.yaml        
-3. servers_configmap.yaml         
-
-```
-
-## Expected Outcome
-
-### At the end of the project, following topics are to be covered;
-
-- MySQL Database Configuration
-
-- Docker Images
-
-- Kubernetes architecture configuration
-
-- AWS EC2 Service
-
-- AWS Security Group Configuration
-
-- Git & Github for Version Control System
-
-- AWS Cloudformation Service
-
-### At the end of the project, will be able to;
-
-- configure a connection to the `MySQL` database.
-
-- build Docker images.
-
-- configure Kubernetes to run Python Flask app.
-
-- improve network skills using `service` objects in Kubernetes
-
-- configure AWS EC2 Instance and Security Groups.
-
-- use git commands (push, pull, commit, add etc.) and Github as Version Control System.
-
-- run the web application on AWS EC2 instance using the GitHub repo as codebase.
-
-- build a Kubernetes infrastructure using Cloudformation.
-
-## Steps to Solution
-  
-- Step 1: Download or clone project definition from repo on Github
-
-- Step 2: Create your Kubernetes environment with cloudformation template
-
-- Step 3: Prepare Dockerfiles for search and delete/update/create pages using Python Flask Apps, create images and push to your Docker Hub Repository.
-
-- Step 4: Prepare search, delete/update/create and mysql parts.
-
-- Step 5: Deploy your work on Kubernetes to showcase your application within your team.
-
-
-## Resources
-
-- [Kubernetes Documentations](https://kubernetes.io/docs/home/)
+Contact-List-Application
+├── backend/
+├── dev/
+├── modules/
+├── prod/
+├── templates/
+├── Microservice_structure.png
+├── structure.jpeg
+├── final_result.png
+├── contact-list-app.py
+└── README.md
